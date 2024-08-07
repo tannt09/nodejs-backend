@@ -5,10 +5,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const client = new Client({
-  user: '',
-  host: '',
-  database: '',
-  password: '',
+  user: 'postgres',
+  host: 'localhost',
+  database: 'postgres',
+  password: '123456',
   port: 5432
 });
 
@@ -20,7 +20,7 @@ client.query('SELECT name, email FROM users', (err, res) => {
   } else {
     console.log(res.rows);
   }
-  client.end()
+  // client.end()
 })
 
 app.get("/", (req, res) => {
@@ -34,6 +34,20 @@ app.get('/users', (req, res) => {
       res.status(500).send('Error fetching data');
     } else {
       res.json(result.rows);
+    }
+  });
+});
+
+app.put('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const newName = req.body.name;
+
+  client.query('UPDATE users SET name = $1 WHERE id = $2', [newName, userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error updating data');
+    } else{
+      res.send('User name updated successfully');
     }
   });
 });
