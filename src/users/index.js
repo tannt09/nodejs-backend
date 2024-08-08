@@ -1,11 +1,8 @@
 const express = require("express");
-const { Client } = require("pg");
 const { v4: uuidv4 } = require("uuid");
+const { Client } = require("pg");
 
-const app = express();
-app.use(express.json());
-
-const PORT = process.env.PORT || 3000;
+const router = express.Router();
 
 const client = new Client({
   user: "postgres",
@@ -14,9 +11,7 @@ const client = new Client({
   password: "123456",
   port: 5432,
 });
-
 client.connect();
-
 client.query("SELECT name, email FROM users", (err, res) => {
   if (err) {
     console.log(err);
@@ -27,11 +22,7 @@ client.query("SELECT name, email FROM users", (err, res) => {
   // client.end()
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/users", (req, res) => {
+router.get("/getAll", (req, res) => {
   client.query("SELECT id, name, email FROM users", (err, result) => {
     if (err) {
       console.error(err);
@@ -42,7 +33,7 @@ app.get("/users", (req, res) => {
   });
 });
 
-app.put("/users/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const userId = req.params.id;
   const newName = req.body.name;
 
@@ -60,7 +51,7 @@ app.put("/users/:id", (req, res) => {
   );
 });
 
-app.post("/users/add", (req, res) => {
+router.post("/add", (req, res) => {
   const newId = uuidv4();
   const newName = req.body.name;
   const newEmail = req.body.email;
@@ -79,7 +70,7 @@ app.post("/users/add", (req, res) => {
   );
 });
 
-app.delete("/users/delete/:id", (req, res) => {
+router.delete("/delete/:id", (req, res) => {
   const userId = req.params.id;
 
   client.query("DELETE FROM users WHERE id = $1", [userId], (err, result) => {
@@ -92,6 +83,4 @@ app.delete("/users/delete/:id", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+module.exports = router;
