@@ -8,7 +8,7 @@ app.use(express.json());
 const router = express.Router();
 router.use("/users", require("./routers/users"));
 
-app.use('/', router);
+app.use("/", router);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
