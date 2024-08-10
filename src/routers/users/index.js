@@ -1,6 +1,8 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
+const { asyncHandler } = require("../../commons/helps/asyncHandler");
+const { testAsync } = require("../../controllers/user.controller");
 
 const router = express.Router();
 
@@ -18,11 +20,12 @@ client.query("SELECT name, email FROM users", (err, res) => {
   } else {
     // console.log(res.rows);
     console.log("Query successfully");
-  }
-  // client.end()
+  }23
 });
 
-router.get("/getAll", (req, res) => {
+router.get("/test", asyncHandler(testAsync));
+
+router.get("/getAll", (req, res) => {1
   client.query("SELECT id, name, email FROM users", (err, result) => {
     if (err) {
       console.error(err);
