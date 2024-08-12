@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const client = require("../databases/init.pg");
+const { client } = require("../databases/init.pg");
 
 class UserController {
   async getAll(req, res, ___) {
