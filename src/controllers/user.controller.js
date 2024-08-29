@@ -12,7 +12,7 @@ class UserController {
       }
     });
   }
-
+  
   async update(req, res, ___) {
     const userId = req.params.id;
     const newName = req.body.name;
