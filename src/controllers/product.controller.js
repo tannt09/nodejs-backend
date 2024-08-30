@@ -55,6 +55,23 @@ class ProductsController {
       }
     );
   }
+
+  async deleteProduct(req, res, ___) {
+    const productId = req.query.id;
+
+    client.query(
+      "DELETE FROM products WHERE id = $1",
+      [productId],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error delete product");
+        } else {
+          res.send("Delete product successfully");
+        }
+      }
+    );
+  }
 }
 
 module.exports = new ProductsController();
