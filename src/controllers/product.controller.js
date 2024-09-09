@@ -14,21 +14,40 @@ class ProductsController {
   }
 
   async update(req, res, ___) {
-    const productsId = req.query.id;
-    const newOriginPrice = req.body.price;
+    const productId = req.query.id;
+    const updates = req.body;
 
-    client.query(
-      "UPDATE products SET original_price = $1 WHERE id = $2",
-      [newOriginPrice, productsId],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error updating data");
-        } else {
-          res.send("Price updated successfully");
-        }
+    // Create an array to store the fields to update and their values
+    const updateFields = [];
+    const values = [productId];
+    let paramCounter = 2;
+
+    // Check each field and add it to the update if it's not null
+    for (const [key, value] of Object.entries(updates)) {
+      if (value !== null) {
+        updateFields.push(`${key} = $${paramCounter}`);
+        values.push(value);
+        paramCounter++;
       }
-    );
+    }
+
+    // If no fields to update, return early
+    if (updateFields.length === 0) {
+      return res.status(400).send("No valid fields to update");
+    }
+
+    const queryText = `UPDATE products SET ${updateFields.join(
+      ", "
+    )} WHERE id = $1`;
+
+    client.query(queryText, values, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error updating data");
+      } else {
+        res.send("Price updated successfully");
+      }
+    });
   }
 
   async add(req, res, ___) {
