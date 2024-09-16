@@ -24,7 +24,7 @@ class ProductsController {
 
     // Check each field and add it to the update if it's not null
     for (const [key, value] of Object.entries(updates)) {
-      if (value !== null) {
+      if (value !== null && value !== undefined && value !== "") {
         updateFields.push(`${key} = $${paramCounter}`);
         values.push(value);
         paramCounter++;
