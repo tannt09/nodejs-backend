@@ -15,7 +15,9 @@ class CustomerController {
         [username]
       );
       if (usernameCheck.rows.length > 0) {
-        return res.status(400).json({ error: "Username already exists" });
+        return res
+          .status(400)
+          .json({ code: 400, message: "Username already exists" });
       }
 
       // If username doesn't exist, proceed with registration
@@ -25,13 +27,14 @@ class CustomerController {
         [username, email, hashedPassword]
       );
 
-      res.status(201).json({
+      res.status(200).json({
+        code: 200,
         message: "Customer registered successfully",
-        customer: result.rows[0].username,
+        data: { customer: result.rows[0].username },
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Error registering customer" });
+      res.status(500).json({ code: 500, message: err });
     }
   }
 
@@ -45,14 +48,16 @@ class CustomerController {
         [username]
       );
       if (userCheck.rows.length === 0) {
-        return res.status(400).json({ error: "Invalid username or password" });
+        return res.status(400).json({ code: 400, message: "Invalid username or password" });
       }
 
       const user = userCheck.rows[0];
       // Compare the provided password with the stored hashed password
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ error: "Invalid username or password" });
+        return res
+          .status(400)
+          .json({ code: 400, message: "Invalid username or password" });
       }
 
       // Generate a token (you'll need to implement token generation)
@@ -64,10 +69,16 @@ class CustomerController {
         }
       ); // Replace with actual token generation logic
 
-      res.status(200).json({ message: "Login successful", token });
+      res
+        .status(200)
+        .json({
+          code: 200,
+          message: "Login successful",
+          data: { token: token },
+        });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Error logging in" });
+      res.status(500).json({ code: 500, message: err });
     }
   }
 }
