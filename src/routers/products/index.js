@@ -11,16 +11,16 @@ const {
 } = require("../../controllers/product.controller");
 
 function verifyToken(req, res, next) {
-  const token = req.headers['authorization'];
+  const token = req.headers["authorization"];
 
-  const tokenParts = token ? token.split(' ') : [];
-  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
-    return res.status(403).send('Token is required');
+  const tokenParts = token ? token.split(" ") : [];
+  if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
+    return res.status(403).send("Token is required");
   }
 
   jwt.verify(tokenParts[1], process.env.TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).send('Invalid token');
+      return res.status(401).send("Invalid token");
     }
 
     req.user = decoded;
@@ -30,12 +30,23 @@ function verifyToken(req, res, next) {
 
 const router = express.Router();
 
-router.get("/getAll", verifyToken, asyncHandler(getAll));
+const routers = [
+  { method: 'get', path: '/getAll', handler: getAll},
+  { method: 'put', path: '/update', handler: update},
+  { method: 'post', path: '/add', handler: add},
+  { method: 'delete', path: '/delete', handler: deleteProduct},
+];
 
-router.put("/update", asyncHandler(update));
+routers.forEach(route => {
+  router[route.method](route.path, verifyToken, asyncHandler(route.handler));
+})
 
-router.post("/add", asyncHandler(add));
+// router.get("/getAll", verifyToken, asyncHandler(getAll));
 
-router.delete("/delete", asyncHandler(deleteProduct));
+// router.put("/update", verifyToken, asyncHandler(update));
+
+// router.post("/add", verifyToken, asyncHandler(add));
+
+// router.delete("/delete", verifyToken, asyncHandler(deleteProduct));
 
 module.exports = router;
