@@ -48,7 +48,9 @@ class CustomerController {
         [username]
       );
       if (userCheck.rows.length === 0) {
-        return res.status(400).json({ code: 400, message: "Invalid username or password" });
+        return res
+          .status(400)
+          .json({ code: 400, message: "Invalid username or password" });
       }
 
       const user = userCheck.rows[0];
@@ -60,22 +62,29 @@ class CustomerController {
           .json({ code: 400, message: "Invalid username or password" });
       }
 
-      // Generate a token (you'll need to implement token generation)
-      const token = jwt.sign(
+      // Generate access token and refresh token
+      const accessToken = jwt.sign(
         { id: user.id, username: user.username },
         process.env.TOKEN_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      ); // Replace with actual token generation logic
+        { expiresIn: "1m" }
+      );
 
-      res
-        .status(200)
-        .json({
-          code: 200,
-          message: "Login successful",
-          data: { token: token },
-        });
+      const refreshToken = jwt.sign(
+        { id: user.id, username: user.username },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      await client.query(
+        "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)",
+        [user.id, refreshToken]
+      );
+
+      res.status(200).json({
+        code: 200,
+        message: "Login successful",
+        data: { token: accessToken },
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ code: 500, message: err });
