@@ -83,9 +83,64 @@ class CustomerController {
       res.status(200).json({
         code: 200,
         message: "Login successful",
-        data: { token: accessToken },
+        data: { access_token: accessToken, refresh_token: refreshToken },
       });
     } catch (err) {
+      console.error(err);
+      res.status(500).json({ code: 500, message: err });
+    }
+  }
+
+  async refreshToken(req, res) {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ code: 400, message: "Refresh token is required" });
+    }
+
+    try {
+      // Verify the refresh token
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+      // Check if refresh token exists in database
+      const tokenCheck = await client.query(
+        "SELECT * FROM refresh_tokens WHERE user_id = $1 AND token = $2",
+        [decoded.id, refreshToken]
+      );
+
+      if (tokenCheck.rows.length === 0) {
+        return res.status(401).json({ code: 401, message: "Invalid refresh token" });
+      }
+
+      // Generate new access token
+      const accessToken = jwt.sign(
+        { id: decoded.id, username: decoded.username },
+        process.env.TOKEN_SECRET,
+        { expiresIn: "1m" }
+      );
+
+      // Generate new refresh token
+      // const newRefreshToken = jwt.sign(
+      //   { id: decoded.id, username: decoded.username },
+      //   process.env.REFRESH_TOKEN_SECRET,
+      //   { expiresIn: "7d" }
+      // );
+
+      // // Update refresh token in database
+      // await client.query(
+      //   "UPDATE refresh_tokens SET token = $1 WHERE user_id = $2 AND token = $3",
+      //   [newRefreshToken, decoded.id, refresh_token]
+      // );
+
+      res.status(200).json({
+        code: 200,
+        message: "Token refreshed successfully",
+        data: { access_token: accessToken },
+      });
+    } catch (err) {
+      if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+        return res.status(401).json({ code: 401, message: "Invalid refresh token" });
+      }
       console.error(err);
       res.status(500).json({ code: 500, message: err });
     }

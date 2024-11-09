@@ -8,7 +8,7 @@ app.use(express.json());
 const router = express.Router();
 router.use("/users", require("./routers/users"));
 router.use("/products", require("./routers/products"));
-router.use("/customers", require("./routers/customers"));
+router.use("/auth", require("./routers/auth"));
 
 app.use("/", router);
 
