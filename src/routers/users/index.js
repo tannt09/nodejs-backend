@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const { asyncHandler } = require("../../commons/helps/asyncHandler");
 const {
-  getAll,
+  getProfile,
   update,
   add,
   deleteUser,
@@ -30,7 +30,7 @@ function verifyToken(req, res, next) {
 const router = express.Router();
 
 const routers = [
-  { method: "get", path: "/getAll", handler: getAll },
+  { method: "get", path: "/getProfile", handler: getProfile },
   { method: "put", path: "/update", handler: update },
   { method: "post", path: "/add", handler: add },
   { method: "delete", path: "/delete", handler: deleteUser },

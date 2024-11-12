@@ -22,15 +22,20 @@ class CustomerController {
 
       // If username doesn't exist, proceed with registration
       const hashedPassword = await bcrypt.hash(password, 10);
-      const result = await client.query(
+      const customerResult = await client.query(
         "INSERT INTO customers (username, email, password) VALUES ($1, $2, $3) RETURNING *",
         [username, email, hashedPassword]
+      );
+
+      await client.query(
+        "INSERT INTO user_profile (user_id, full_name, email, username) VALUES ($1, $2, $3, $4) RETURNING *",
+        [customerResult.rows[0].id, '', customerResult.rows[0].email, customerResult.rows[0].username]
       );
 
       res.status(200).json({
         code: 200,
         message: "Customer registered successfully",
-        data: { customer: result.rows[0].username },
+        data: { customer: customerResult.rows[0].username },
       });
     } catch (err) {
       console.error(err);
@@ -66,7 +71,7 @@ class CustomerController {
       const accessToken = jwt.sign(
         { id: user.id, username: user.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "1m" }
+        { expiresIn: "15m" }
       );
 
       const refreshToken = jwt.sign(
@@ -76,7 +81,7 @@ class CustomerController {
       );
 
       await client.query(
-        "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)",
+        "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token",
         [user.id, refreshToken]
       );
 
@@ -116,7 +121,7 @@ class CustomerController {
       const accessToken = jwt.sign(
         { id: decoded.id, username: decoded.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "1m" }
+        { expiresIn: "15m" }
       );
 
       // Generate new refresh token

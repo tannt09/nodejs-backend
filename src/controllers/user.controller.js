@@ -2,8 +2,10 @@ const { v4: uuidv4 } = require("uuid");
 const { client } = require("../databases/init.pg");
 
 class UserController {
-  async getAll(req, res, ___) {
-    client.query("SELECT id, name, email FROM users", (err, result) => {
+  async getProfile(req, res, ___) {
+    const userId = req.query.user_id;
+
+    client.query("SELECT * FROM user_profile WHERE user_id = $1", [userId], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send("Error fetching data");
