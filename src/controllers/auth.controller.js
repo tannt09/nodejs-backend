@@ -3,15 +3,17 @@ require("dotenv").config(); // Add this line at the top
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { client } = require("../databases/init.pg");
+const { v4: uuidv4 } = require("uuid");
 
 class CustomerController {
   async register(req, res) {
+    const newId = uuidv4();
     const { username, email, password } = req.body;
 
     try {
       // Check if username already exists
       const usernameCheck = await client.query(
-        "SELECT 1 FROM customers WHERE username = $1",
+        "SELECT 1 FROM auth WHERE username = $1",
         [username]
       );
       if (usernameCheck.rows.length > 0) {
@@ -23,13 +25,13 @@ class CustomerController {
       // If username doesn't exist, proceed with registration
       const hashedPassword = await bcrypt.hash(password, 10);
       const customerResult = await client.query(
-        "INSERT INTO customers (username, email, password) VALUES ($1, $2, $3) RETURNING *",
-        [username, email, hashedPassword]
+        "INSERT INTO auth (username, email, password, user_id) VALUES ($1, $2, $3, $4) RETURNING *",
+        [username, email, hashedPassword, newId]
       );
 
       await client.query(
         "INSERT INTO user_profile (user_id, full_name, email, username) VALUES ($1, $2, $3, $4) RETURNING *",
-        [customerResult.rows[0].id, '', customerResult.rows[0].email, customerResult.rows[0].username]
+        [newId, '', customerResult.rows[0].email, customerResult.rows[0].username]
       );
 
       res.status(200).json({
@@ -49,7 +51,7 @@ class CustomerController {
     try {
       // Check if username exists
       const userCheck = await client.query(
-        "SELECT * FROM customers WHERE username = $1",
+        "SELECT * FROM auth WHERE username = $1",
         [username]
       );
       if (userCheck.rows.length === 0) {
@@ -82,7 +84,7 @@ class CustomerController {
 
       await client.query(
         "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token",
-        [user.id, refreshToken]
+        [user.user_id, refreshToken]
       );
 
       res.status(200).json({
