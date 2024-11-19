@@ -12,6 +12,7 @@ router.use("/users", require("./routers/users"));
 router.use("/products", require("./routers/products"));
 router.use("/auth", require("./routers/auth"));
 router.use("/uploads", require("./routers/uploads"));
+router.use("/goods", require("./routers/goods"));
 
 app.use("/images", express.static(uploadsDir));
 app.use("/", router);
