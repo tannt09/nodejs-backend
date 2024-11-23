@@ -71,13 +71,13 @@ class CustomerController {
 
       // Generate access token and refresh token
       const accessToken = jwt.sign(
-        { id: user.id, username: user.username },
+        { id: user.user_id, username: user.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "15s" }
       );
 
       const refreshToken = jwt.sign(
-        { id: user.id, username: user.username },
+        { id: user.user_id, username: user.username },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "7d" }
       );
@@ -108,6 +108,7 @@ class CustomerController {
     try {
       // Verify the refresh token
       const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      console.log('----1111 ', decoded);
 
       // Check if refresh token exists in database
       const tokenCheck = await client.query(
@@ -123,7 +124,7 @@ class CustomerController {
       const accessToken = jwt.sign(
         { id: decoded.id, username: decoded.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "15s" }
       );
 
       // Generate new refresh token

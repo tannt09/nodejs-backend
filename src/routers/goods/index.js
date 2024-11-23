@@ -3,9 +3,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const { asyncHandler } = require("../../commons/helps/asyncHandler");
-const {
-  getAll
-} = require("../../controllers/goods.controller");
+const { getAll, add } = require("../../controllers/goods.controller");
 
 function verifyToken(req, res, next) {
   const token = req.headers["authorization"];
@@ -28,11 +26,12 @@ function verifyToken(req, res, next) {
 const router = express.Router();
 
 const routers = [
-  { method: 'get', path: '/getAll', handler: getAll}
+  { method: "get", path: "/getAll", handler: getAll },
+  { method: "post", path: "/add", handler: add },
 ];
 
-routers.forEach(route => {
+routers.forEach((route) => {
   router[route.method](route.path, verifyToken, asyncHandler(route.handler));
-})
+});
 
 module.exports = router;

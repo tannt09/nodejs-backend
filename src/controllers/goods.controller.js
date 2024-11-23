@@ -12,6 +12,30 @@ class GoodsController {
       }
     });
   }
+
+  async add(req, res, ___) {
+    const newId = uuidv4();
+    const newInfoProduct = req.body;
+
+    client.query(
+      "INSERT INTO goods (product_id, image_url, is_favorite, name, price) VALUES ($1, $2, $3, $4, $5)",
+      [
+        newId,
+        newInfoProduct.image_url,
+        newInfoProduct.is_favorite,
+        newInfoProduct.name,
+        newInfoProduct.price,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error add new products");
+        } else {
+          res.send("Add new product successfully");
+        }
+      }
+    );
+  }
 }
 
 module.exports = new GoodsController();
