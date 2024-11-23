@@ -36,6 +36,22 @@ class GoodsController {
       }
     );
   }
+
+  async changeFavorite(req, res, ___) {
+    const productId = req.query.user_id;
+    const newFavoriteState = req.body.is_favorite;
+
+    const queryText = `UPDATE goods SET is_favorite = $2 WHERE product_id = $1`;
+
+    client.query(queryText, [productId, newFavoriteState], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send(newFavoriteState ? "Error add favorite" : "Error unfavorite");
+      } else {
+        res.send(newFavoriteState ? "Add favorite successfully" : "Unfavorite successfully");
+      }
+    });
+  }
 }
 
 module.exports = new GoodsController();

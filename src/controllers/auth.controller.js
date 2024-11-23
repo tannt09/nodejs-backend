@@ -73,7 +73,7 @@ class CustomerController {
       const accessToken = jwt.sign(
         { id: user.user_id, username: user.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "15s" }
+        { expiresIn: "15m" }
       );
 
       const refreshToken = jwt.sign(
@@ -108,13 +108,16 @@ class CustomerController {
     try {
       // Verify the refresh token
       const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-      console.log('----1111 ', decoded);
+
+      console.log('----1111 ', decoded, refreshToken);
 
       // Check if refresh token exists in database
       const tokenCheck = await client.query(
         "SELECT * FROM refresh_tokens WHERE user_id = $1 AND token = $2",
         [decoded.id, refreshToken]
       );
+
+      console.log('----2222 ', tokenCheck.rows.length);
 
       if (tokenCheck.rows.length === 0) {
         return res.status(401).json({ code: 401, message: "Invalid refresh token" });
@@ -124,7 +127,7 @@ class CustomerController {
       const accessToken = jwt.sign(
         { id: decoded.id, username: decoded.username },
         process.env.TOKEN_SECRET,
-        { expiresIn: "15s" }
+        { expiresIn: "15m" }
       );
 
       // Generate new refresh token
