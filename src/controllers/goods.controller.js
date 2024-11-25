@@ -3,7 +3,7 @@ const { client } = require("../databases/init.pg");
 
 class GoodsController {
   async getAll(req, res, ___) {
-    client.query("SELECT * FROM goods", (err, result) => {
+    client.query("SELECT * FROM goods ORDER BY id ASC", (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send("Error fetching data");
@@ -11,6 +11,34 @@ class GoodsController {
         res.json(result.rows);
       }
     });
+  }
+
+  async getFeatured(req, res, ___) {
+    client.query(
+      "SELECT * FROM goods WHERE featured = TRUE ORDER BY id ASC",
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error fetching data");
+        } else {
+          res.json(result.rows);
+        }
+      }
+    );
+  }
+
+  async getMostPopular(req, res, ___) {
+    client.query(
+      "SELECT * FROM public.goods WHERE most_popular = TRUE ORDER BY id ASC",
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error fetching data");
+        } else {
+          res.json(result.rows);
+        }
+      }
+    );
   }
 
   async add(req, res, ___) {
@@ -46,9 +74,15 @@ class GoodsController {
     client.query(queryText, [productId, newFavoriteState], (err, result) => {
       if (err) {
         console.error(err);
-        res.status(500).send(newFavoriteState ? "Error add favorite" : "Error unfavorite");
+        res
+          .status(500)
+          .send(newFavoriteState ? "Error add favorite" : "Error unfavorite");
       } else {
-        res.send(newFavoriteState ? "Add favorite successfully" : "Unfavorite successfully");
+        res.send(
+          newFavoriteState
+            ? "Add favorite successfully"
+            : "Unfavorite successfully"
+        );
       }
     });
   }
