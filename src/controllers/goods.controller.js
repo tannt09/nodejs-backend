@@ -13,6 +13,23 @@ class GoodsController {
     });
   }
 
+  async getSearchResult(req, res, ___) {
+    const nameProduct = req.query.name;
+
+    client.query(
+      "SELECT * FROM goods WHERE name ILIKE $1 ORDER BY id ASC",
+      [`%${nameProduct}%`],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error fetching data");
+        } else {
+          res.json(result.rows);
+        }
+      }
+    );
+  }
+
   async getFeatured(req, res, ___) {
     client.query(
       "SELECT * FROM goods WHERE featured = TRUE ORDER BY id ASC",
