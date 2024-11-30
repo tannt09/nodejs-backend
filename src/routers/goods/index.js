@@ -7,10 +7,10 @@ const {
   getAll,
   add,
   changeFavorite,
-  getFeature,
   getFeatured,
   getMostPopular,
   getSearchResult,
+  getItemDetail,
 } = require("../../controllers/goods.controller");
 
 function verifyToken(req, res, next) {
@@ -38,6 +38,7 @@ const routers = [
   { method: "get", path: "/getFeatured", handler: getFeatured },
   { method: "get", path: "/getMostPopular", handler: getMostPopular },
   { method: "get", path: "/searchProduct", handler: getSearchResult },
+  { method: "get", path: "/getItemDetail", handler: getItemDetail },
   { method: "post", path: "/add", handler: add },
   { method: "put", path: "/changeFavorite", handler: changeFavorite },
 ];

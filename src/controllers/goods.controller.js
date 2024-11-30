@@ -83,7 +83,7 @@ class GoodsController {
   }
 
   async changeFavorite(req, res, ___) {
-    const productId = req.query.user_id;
+    const productId = req.query.product_id;
     const newFavoriteState = req.body.is_favorite;
 
     const queryText = `UPDATE goods SET is_favorite = $2 WHERE product_id = $1`;
@@ -100,6 +100,21 @@ class GoodsController {
             ? "Add favorite successfully"
             : "Unfavorite successfully"
         );
+      }
+    });
+  }
+
+  async getItemDetail(req, res, ___) {
+    const productId = req.query.product_id;
+
+    const queryText = "SELECT * FROM goods WHERE product_id = $1";
+
+    client.query(queryText, [productId], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error get item detail");
+      } else {
+        res.json(result.rows);
       }
     });
   }
