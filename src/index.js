@@ -13,6 +13,7 @@ router.use("/products", require("./routers/products"));
 router.use("/auth", require("./routers/auth"));
 router.use("/uploads", require("./routers/uploads"));
 router.use("/goods", require("./routers/goods"));
+router.use("/payment", require("./routers/payment"));
 
 app.use("/images", express.static(uploadsDir));
 app.use("/", router);
