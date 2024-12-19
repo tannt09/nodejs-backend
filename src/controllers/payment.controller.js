@@ -49,8 +49,8 @@ function getKeys(payment_method) {
       secret_key = "STRIPE_SECRET_KEY_UK";
       break;
     default:
-      publishable_key = "STRIPE_PUBLISHABLE_KEY";
-      secret_key = "STRIPE_SECRET_KEY";
+      publishable_key = stripePublishableKey;
+      secret_key = stripeSecretKey;
   }
 
   return { secret_key, publishable_key };

@@ -5,16 +5,30 @@ class UserController {
   async getProfile(req, res, ___) {
     const userId = req.query.user_id;
 
-    client.query("SELECT * FROM user_profile WHERE user_id = $1", [userId], (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send("Error fetching data");
-      } else {
-        res.json(result.rows);
+    client.query(
+      "SELECT * FROM user_profile WHERE user_id = $1",
+      [userId],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error fetching data");
+        } else {
+          res.status(200).json({
+            id: result.rows[0].id,
+            user_id: result.rows[0].user_id,
+            full_name: result.rows[0].full_name,
+            email: result.rows[0].email,
+            phone_number: result.rows[0].phone_number,
+            username: result.rows[0].username,
+            date_of_birth: result.rows[0].date_of_birth,
+            gender: result.rows[0].gender,
+            region: result.rows[0].region,
+          });
+        }
       }
-    });
+    );
   }
-  
+
   async update(req, res, ___) {
     const userId = req.params.id;
     const newName = req.body.name;

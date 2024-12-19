@@ -31,7 +31,12 @@ class CustomerController {
 
       await client.query(
         "INSERT INTO user_profile (user_id, full_name, email, username) VALUES ($1, $2, $3, $4) RETURNING *",
-        [newId, '', customerResult.rows[0].email, customerResult.rows[0].username]
+        [
+          newId,
+          "",
+          customerResult.rows[0].email,
+          customerResult.rows[0].username,
+        ]
       );
 
       res.status(200).json({
@@ -90,7 +95,11 @@ class CustomerController {
       res.status(200).json({
         code: 200,
         message: "Login successful",
-        data: { access_token: accessToken, refresh_token: refreshToken },
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          user_id: user.user_id,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -102,14 +111,19 @@ class CustomerController {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return res.status(400).json({ code: 400, message: "Refresh token is required" });
+      return res
+        .status(400)
+        .json({ code: 400, message: "Refresh token is required" });
     }
 
     try {
       // Verify the refresh token
-      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
 
-      console.log('----1111 ', decoded, refreshToken);
+      console.log("----1111 ", decoded, refreshToken);
 
       // Check if refresh token exists in database
       const tokenCheck = await client.query(
@@ -117,10 +131,12 @@ class CustomerController {
         [decoded.id, refreshToken]
       );
 
-      console.log('----2222 ', tokenCheck.rows.length);
+      console.log("----2222 ", tokenCheck.rows.length);
 
       if (tokenCheck.rows.length === 0) {
-        return res.status(401).json({ code: 401, message: "Invalid refresh token" });
+        return res
+          .status(401)
+          .json({ code: 401, message: "Invalid refresh token" });
       }
 
       // Generate new access token
@@ -130,7 +146,7 @@ class CustomerController {
         { expiresIn: "15m" }
       );
 
-      // Generate new refresh token
+      // // Generate new refresh token
       // const newRefreshToken = jwt.sign(
       //   { id: decoded.id, username: decoded.username },
       //   process.env.REFRESH_TOKEN_SECRET,
@@ -149,8 +165,13 @@ class CustomerController {
         data: { access_token: accessToken },
       });
     } catch (err) {
-      if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-        return res.status(401).json({ code: 401, message: "Invalid refresh token" });
+      if (
+        err.name === "JsonWebTokenError" ||
+        err.name === "TokenExpiredError"
+      ) {
+        return res
+          .status(401)
+          .json({ code: 401, message: "Invalid refresh token" });
       }
       console.error(err);
       res.status(500).json({ code: 500, message: err });
