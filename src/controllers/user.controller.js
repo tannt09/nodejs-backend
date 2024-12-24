@@ -29,22 +29,34 @@ class UserController {
     );
   }
 
-  async update(req, res, ___) {
-    const userId = req.params.id;
-    const newName = req.body.name;
+  async updateProfile(req, res, ___) {
+    const userId = req.query.user_id;
+    const newData = req.body;
 
-    client.query(
-      "UPDATE users SET name = $1 WHERE id = $2",
-      [newName, userId],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error updating data");
-        } else {
-          res.send("User name updated successfully");
-        }
+    const updateFields = [];
+    const values = [userId];
+    let paramCounter = 2;
+
+    for (const [key, value] of Object.entries(newData)) {
+      if (value != null && value !== undefined && value !== "") {
+        updateFields.push(`${key} = $${paramCounter}`);
+        values.push(value);
+        paramCounter++;
       }
-    );
+    }
+
+    const queryText = `UPDATE user_profile SET ${updateFields.join(
+      ", "
+    )} WHERE user_id = $1`;
+
+    client.query(queryText, values, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error updating user profile");
+      } else {
+        res.send("Updated user profile successfully");
+      }
+    });
   }
 
   async add(req, res, ___) {

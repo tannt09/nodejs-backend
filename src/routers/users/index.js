@@ -7,6 +7,7 @@ const {
   update,
   add,
   deleteUser,
+  updateProfile,
 } = require("../../controllers/user.controller");
 
 function verifyToken(req, res, next) {
@@ -31,7 +32,7 @@ const router = express.Router();
 
 const routers = [
   { method: "get", path: "/getProfile", handler: getProfile },
-  { method: "put", path: "/update", handler: update },
+  { method: "put", path: "/updateProfile", handler: updateProfile },
   { method: "post", path: "/add", handler: add },
   { method: "delete", path: "/delete", handler: deleteUser },
 ];
