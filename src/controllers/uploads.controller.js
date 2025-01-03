@@ -16,7 +16,7 @@ class UploadsController {
         console.error(err);
         res.status(500).send("Error upload image");
       } else {
-        res.send({ imageUrl, id: result.rows[0].id });
+        res.send({ image_url: imageUrl, id: result.rows[0].id });
       }
     });
   }

@@ -2,8 +2,16 @@ require("dotenv").config(); // Add this line at the top
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const admin = require("firebase-admin");
+const serviceAccount = require("../../path/to/service-account-key.json.json");
+
 const { client } = require("../databases/init.pg");
 const { v4: uuidv4 } = require("uuid");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://appflutter-ffa11-default-rtdb.firebaseio.com",
+});
 
 class CustomerController {
   async register(req, res) {
@@ -107,8 +115,19 @@ class CustomerController {
     }
   }
 
+  async googleLogin(req, res) {
+    const idToken = req.body.id_token;
+
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      res.status(200).send(decodedToken);
+    } catch (error) {
+      res.status(401).json({ error: error });
+    }
+  }
+
   async refreshToken(req, res) {
-    const { refreshToken } = req.body;
+    const refreshToken = req.body.refresh_token;
 
     if (!refreshToken) {
       return res

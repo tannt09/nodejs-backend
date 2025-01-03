@@ -6,24 +6,14 @@ class UserController {
     const userId = req.query.user_id;
 
     client.query(
-      "SELECT * FROM user_profile WHERE user_id = $1",
+      "SELECT *, date_of_birth::text FROM user_profile WHERE user_id = $1",
       [userId],
       (err, result) => {
         if (err) {
           console.error(err);
           res.status(500).send("Error fetching data");
         } else {
-          res.status(200).json({
-            id: result.rows[0].id,
-            user_id: result.rows[0].user_id,
-            full_name: result.rows[0].full_name,
-            email: result.rows[0].email,
-            phone_number: result.rows[0].phone_number,
-            username: result.rows[0].username,
-            date_of_birth: result.rows[0].date_of_birth,
-            gender: result.rows[0].gender,
-            region: result.rows[0].region,
-          });
+          res.status(200).json(result.rows[0]);
         }
       }
     );
@@ -43,6 +33,10 @@ class UserController {
         values.push(value);
         paramCounter++;
       }
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).send("No valid fields to update");
     }
 
     const queryText = `UPDATE user_profile SET ${updateFields.join(
