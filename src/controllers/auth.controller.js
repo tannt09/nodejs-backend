@@ -119,8 +119,53 @@ class CustomerController {
     const idToken = req.body.id_token;
 
     try {
+      // Verify id token
       const decodedToken = await admin.auth().verifyIdToken(idToken);
-      res.status(200).send(decodedToken);
+
+      const userId = decodedToken["uid"];
+      const userName = decodedToken["name"];
+      const userEmail = decodedToken["email"];
+
+      // Generate access token and refresh token
+      const accessToken = jwt.sign(
+        { id: userId, username: userName },
+        process.env.TOKEN_SECRET,
+        { expiresIn: "15m" }
+      );
+
+      const refreshToken = jwt.sign(
+        { id: userId, username: userName },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      await client.query(
+        "INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token",
+        [userId, refreshToken]
+      );
+
+      // Check if user_id already exists in user_profile table
+      const userProfileCheck = await client.query(
+        "SELECT 1 FROM user_profile WHERE user_id = $1",
+        [userId]
+      );
+
+      if (userProfileCheck.rows.length === 0) {
+        await client.query(
+          "INSERT INTO user_profile (user_id, full_name, email) VALUES ($1, $2, $3) RETURNING *",
+          [userId, userName, userEmail]
+        );
+      }
+
+      res.status(200).json({
+        code: 200,
+        message: "Login successful",
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          user_id: userId,
+        },
+      });
     } catch (error) {
       res.status(401).json({ error: error });
     }
