@@ -5,7 +5,10 @@ class UploadsController {
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
-    const imageUrl = `${req.protocol}://${req.get("host")}/images/${
+    // const imageUrl = `${req.protocol}://${req.get("host")}/images/${
+    //   req.file.filename
+    // }`;
+    const imageUrl = `http://localhost:3000/images/${
       req.file.filename
     }`;
 
